@@ -3,10 +3,10 @@ from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.encoding import force_unicode
 from django.utils.functional import Promise
+from django.utils import simplejson as json
 
 from locality.models import Country, Territory
 
-import simplejson as json
 
 def countries(request, to = "json"):
 	return HttpResponse(serializers.serialize(to, Country.objects.all()), mimetype="application/%s; charset=utf-8" % to)
@@ -36,7 +36,7 @@ def generate_territories(request):
 	from django.contrib.localflavor.ch import ch_states
 	from django.contrib.localflavor.tr import tr_provinces
 	from django.contrib.localflavor.us import us_states
-	
+
 	counter = SuperCounter(start = 1)
 	c = counter
 
@@ -58,19 +58,19 @@ def generate_territories(request):
 	output.extend(create_territories("US", us_states.STATE_CHOICES, c))
 
 	return HttpResponse(LazyEncoder(indent="\t").encode(output), mimetype="application/json; charset=utf-8")
-	
+
 def create_territories(country_abbr, territories, counter):
 	result = []
 	country = Country.objects.get(iso2=country_abbr)
-	
+
 	for territory in territories:
-		result.append({ 
+		result.append({
 		'model': "locality.territory",
 		'pk': counter.get(),
 		'fields': {
-			'abbr': territory[0], 
-			'name': territory[1], 
-			'country': country.id 
+			'abbr': territory[0],
+			'name': territory[1],
+			'country': country.id
 		}})
 
 		counter.increment()
